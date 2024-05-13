@@ -1,4 +1,5 @@
 import { createBidAction } from "@/app/items/[itemId]/actions";
+import { auth } from "@/auth";
 import { Button } from "@/components/ui/button";
 import { getBidsForItem } from "@/data-access/bids";
 import { getItem } from "@/data-access/items";
@@ -18,6 +19,8 @@ export default async function ItemPage({
 }: {
   params: { itemId: string };
 }) {
+  const session = await auth();
+
   const item = await getItem(parseInt(itemId));
 
   if (!item) {
@@ -42,6 +45,8 @@ export default async function ItemPage({
   const allBids = await getBidsForItem(item.id);
 
   const hasBids = allBids.length > 0;
+
+  const canPlaceBid = session && item.userId !== session.user.id;
 
   return (
     <main className="space-y-8">
@@ -82,9 +87,11 @@ export default async function ItemPage({
         <div className="space-y-4 flex-1">
           <div className="flex justify-between">
             <h2 className="text-2xl font-bold">Current Bids</h2>
-            <form action={createBidAction.bind(null, item.id)}>
-              <Button>Place a Bid</Button>
-            </form>
+            {canPlaceBid && (
+              <form action={createBidAction.bind(null, item.id)}>
+                <Button>Place a Bid</Button>
+              </form>
+            )}
           </div>
 
           {hasBids ? (
@@ -112,9 +119,11 @@ export default async function ItemPage({
                 alt="Package"
               />
               <h2 className="text-2xl font-bold">No bids yet</h2>
-              <form action={createBidAction.bind(null, item.id)}>
-                <Button>Place a Bid</Button>
-              </form>
+              {canPlaceBid && (
+                <form action={createBidAction.bind(null, item.id)}>
+                  <Button>Place a Bid</Button>
+                </form>
+              )}
             </div>
           )}
         </div>

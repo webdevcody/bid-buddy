@@ -1,7 +1,9 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { formatToDollar } from "@/util/currency";
 import {
+  NotificationCell,
   NotificationFeedPopover,
   NotificationIconButton,
 } from "@knocklabs/react";
@@ -14,6 +16,8 @@ export function Header() {
   const [isVisible, setIsVisible] = useState(false);
   const notifButtonRef = useRef(null);
   const session = useSession();
+
+  const userId = session?.data?.user?.id;
 
   return (
     <div className="bg-gray-200 py-2">
@@ -29,37 +33,70 @@ export function Header() {
               All Auctions
             </Link>
 
-            <Link
-              href="/items/create"
-              className="hover:underline flex items-center gap-1"
-            >
-              Create Auction
-            </Link>
+            {userId && (
+              <>
+                <Link
+                  href="/items/create"
+                  className="hover:underline flex items-center gap-1"
+                >
+                  Create Auction
+                </Link>
 
-            <Link
-              href="/auctions"
-              className="hover:underline flex items-center gap-1"
-            >
-              My Auctions
-            </Link>
+                <Link
+                  href="/auctions"
+                  className="hover:underline flex items-center gap-1"
+                >
+                  My Auctions
+                </Link>
+              </>
+            )}
           </div>
         </div>
         <div className="flex items-center gap-4">
-          <NotificationIconButton
-            ref={notifButtonRef}
-            onClick={(e) => setIsVisible(!isVisible)}
-          />
-          <NotificationFeedPopover
-            buttonRef={notifButtonRef}
-            isVisible={isVisible}
-            onClose={() => setIsVisible(false)}
-          />
+          {userId && (
+            <>
+              <NotificationIconButton
+                ref={notifButtonRef}
+                onClick={(e) => setIsVisible(!isVisible)}
+              />
+              <NotificationFeedPopover
+                buttonRef={notifButtonRef}
+                isVisible={isVisible}
+                onClose={() => setIsVisible(false)}
+                renderItem={({ item, ...props }) => (
+                  <NotificationCell {...props} item={item}>
+                    <div className="rounded-xl">
+                      <Link
+                        className="text-blue-400 hover:text=blue-500"
+                        onClick={() => {
+                          setIsVisible(false);
+                        }}
+                        href={`/items/${item.data.itemId}`}
+                      >
+                        Someone outbidded you on{" "}
+                        <span className="font-bold">{item.data.itemName}</span>{" "}
+                        by ${formatToDollar(item.data.bidAmount)}
+                      </Link>
+                    </div>
+                  </NotificationCell>
+                )}
+              />
+            </>
+          )}
 
+          {session?.data?.user.image && (
+            <Image
+              src={session.data.user.image}
+              width="40"
+              height="40"
+              alt="user avatar"
+              className="rounded-full"
+            />
+          )}
           <div>{session?.data?.user?.name}</div>
           <div>
-            {session ? (
+            {userId ? (
               <Button
-                type="submit"
                 onClick={() =>
                   signOut({
                     callbackUrl: "/",
