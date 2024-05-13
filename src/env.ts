@@ -12,6 +12,8 @@ export const env = createEnv({
   },
   client: {
     NEXT_PUBLIC_BUCKET_URL: z.string().url(),
+    NEXT_PUBLIC_KNOCK_PUBLIC_API_KEY: z.string().min(1),
+    NEXT_PUBLIC_KNOCK_FEED_ID: z.string().min(1),
   },
   runtimeEnv: {
     NODE_ENV: process.env.NODE_ENV,
@@ -21,5 +23,8 @@ export const env = createEnv({
     CLOUDFLARE_SECRET_ACCESS_KEY: process.env.CLOUDFLARE_SECRET_ACCESS_KEY,
     BUCKET_NAME: process.env.BUCKET_NAME,
     NEXT_PUBLIC_BUCKET_URL: process.env.NEXT_PUBLIC_BUCKET_URL,
+    NEXT_PUBLIC_KNOCK_PUBLIC_API_KEY:
+      process.env.NEXT_PUBLIC_KNOCK_PUBLIC_API_KEY,
+    NEXT_PUBLIC_KNOCK_FEED_ID: process.env.NEXT_PUBLIC_KNOCK_FEED_ID,
   },
 });
